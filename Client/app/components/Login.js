@@ -57,7 +57,7 @@ export default class Login extends React.Component {
   }
 
   login = () => {
-    //TODO Password und username an Server senden
+    console.log(Meteor.call('loginTest'));
   }
 }
 
