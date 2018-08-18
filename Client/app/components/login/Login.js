@@ -5,11 +5,16 @@ import {
   View,
   TextInput,
   KeyboardAvoidingView,
-  TouchableOpacity
+  TouchableOpacity,
+  NetInfo
 } from 'react-native';
-import {createStackNavigator} from 'react-navigation';
 import Meteor from 'react-native-meteor';
-import { sha256 } from 'react-native-sha256';
+import SecurityUtility from '../util/SecurityUtility';
+import LoginStyles from '../styles/LoginStyles';
+import DefaultComponentStyles from '../styles/DefaultComponentStyles';
+import LoginErrorMessages from '../text/errorMessages/LoginErrorMessages';
+import connect from 'react-watcher';
+import Timer from '../util/Timer';
 
 
 export default class Login extends React.Component {
@@ -18,65 +23,74 @@ export default class Login extends React.Component {
     this.state = {
       usernmae: '',
       password: '',
-      connected: Meteor.status().connected,
-      infoPanelText: '',
+      connected: false,
+      infoPanelText:'',
       textInputWrong: false,
+      connectionUpdateTimer: ''
     }
   }
 
-  /*componentDidMount() {
-    this._loadInitialState().done();
+  componentDidMount() {
+    let this_ = this;
+    var timer = new Timer(this_.updateConnectionStatus, 1000);
+    this.setState({connectionUpdateTimer: timer}, () =>
+    this.state.connectionUpdateTimer.start());
   }
 
-/*  _loadInitialState = async () => {
-
-    var value = await AsyncStorage.getItem('user');
-    if (value !== null) {
-      this.props.navigation.navigate('Profile');
+  componentWillUnmount() {
+    if(this.state.connectionUpdateTimer !== 'undefined') {
+      this.state.connectionUpdateTimer.stop();
     }
-
-  }*/
+  }
 
   render() {
-    return (<KeyboardAvoidingView behavior='padding' style={styles.wrapper}>
-      <View style={styles.container}>
+    return (
+      <KeyboardAvoidingView behavior='padding' style={LoginStyles.wrapper()}>
+        <View style={LoginStyles.container()}>
 
-        <Text style={styles.header}>- LOGO -</Text>
+          <Text style={LoginStyles.header()}>- LOGO -</Text>
 
-        <Text style={styles.infoPanel}>{this.state.infoPanelText}</Text>
+          <Text style={LoginStyles.infoPanel()}>{this.state.infoPanelText}</Text>
 
-        <TextInput  style={this.getTextInputStyle()}
-                    placeholder='Username'
-                    onChangeText={(username) => { this.setState({username: username});
-                                                  //if(this.state.textInputStyle == styles.textInputWrong){
-                                                  //  this.setState({textInputStyle: styles.textInput});
-                                                  //}
-                                                }
-                                  }
-                    underlineColorAbdroid='transparent'/>
 
-        <TextInput  style={this.getTextInputStyle()}
-                    placeholder='Password'
-                    onChangeText={(password) => { this.setState({password});
-                                                  //if(this.state.textInputStyle == styles.textInputWrong){
-                                                //    this.setState({textInputStyle: styles.textInput});
-                                                //  }
-                                                }
-                                  }
-                    secureTextEntry={true}
-                    underlineColorAbdroid='transparent'/>
+          <TextInput  style={DefaultComponentStyles.textInput(this.state.textInputWrong)}
+                      placeholder='Username'
+                      onChangeText={(username) => { this.setState({username: username});
+                                                    //if(this.state.textInputStyle == styles.textInputWrong){
+                                                    //  this.setState({textInputStyle: styles.textInput});
+                                                    //}
+                                                  }
+                                    }
+                      value={this.state.username}
+                      underlineColorAbdroid='transparent'/>
 
-        <TouchableOpacity style={styles.logInButton} onPress={this.login}>
-          <Text style={styles.logInButtonText}>Log In</Text>
-        </TouchableOpacity>
+          <TextInput  style={DefaultComponentStyles.textInput(this.state.textInputWrong)}
+                      placeholder='Password'
+                      onChangeText={(password) => { this.setState({password});
+                                                    //if(this.state.textInputStyle == styles.textInputWrong){
+                                                  //    this.setState({textInputStyle: styles.textInput});
+                                                  //  }
+                                                  }
+                                    }
+                      value={this.state.password}
+                      secureTextEntry={true}
+                      underlineColorAbdroid='transparent'/>
 
-      </View>
+          <TouchableOpacity style={LoginStyles.logInButton()} onPress={this.login}>
+            <Text style={LoginStyles.logInButtonText()}>Log In</Text>
+          </TouchableOpacity>
 
-    </KeyboardAvoidingView>);
+          <TouchableOpacity style={LoginStyles.registerButton()} onPress={this.register}>
+            <Text style={LoginStyles.registerButtonText()}>Register</Text>
+          </TouchableOpacity>
+
+        </View>
+
+      </KeyboardAvoidingView>);
   }
 
   login = () => {
-    Promise.all([this.hash(this.state.username), this.hash(this.state.password)])
+    Promise.all([SecurityUtility.hash256(this.state.username), SecurityUtility.hash256(this.state.password)])
       .then(allData => {
         console.log(allData);
         Meteor.call('checkUser', allData[0], allData[1] ,(err, data) => {
@@ -89,73 +103,47 @@ export default class Login extends React.Component {
           }
           else {
             this.setState({textInputWrong: true});
+            this.setState({infoPanelText: LoginErrorMessages.wrongPasswordOrUsername(this.props.language)});
           }
         });
       });
   }
 
-  hash = (stringToEncrypt) => {
-    return sha256(stringToEncrypt).then( hash => {
-        return hash;
-      })
+  register = () => {
+    this.props.navigation.navigate('Register');
   }
 
-  getTextInputStyle = () => {
-    if(this.state.textInputWrong == false){
-      return styles.textInput;
-    }
-    else {
-      return styles.textInputWrong;
-    }
+  updateConnectionStatus = () => {
+    NetInfo.getConnectionInfo().then((deviceConnectionStatus) => {
+      //If device has no internet connection
+      if(deviceConnectionStatus.type != 'wifi' &&
+         deviceConnectionStatus.type != 'cellular' &&
+         deviceConnectionStatus.type != 'unknown')
+      {
+        this.setState({connected: false});
+        this.setState({infoPanelText: LoginErrorMessages.noInternetConnection(this.props.language)});
+      }
+
+      //If device has internet connection => Check if Server is reachable
+      else
+      {
+        if(Meteor.status().status === 'disconnected')
+        {
+          this.setState({connected: false});
+          this.setState({infoPanelText: LoginErrorMessages.cantReachServer(this.props.language)});
+        }
+        else if(Meteor.status().status === 'connected')
+        {
+          if(this.state.connected == false)
+          {
+            this.setState({infoPanelText: ''});
+            this.setState({connected: true});
+          }
+        }
+      }
+
+    });
+    //console.log(Meteor.status().status);
+
   }
 }
-
-const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1
-  },
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#ededed',
-    paddingLeft: 40,
-    paddingRight: 40
-  },
-  header: {
-    fontSize: 24,
-    marginBottom: 60,
-    color: '#01c853',
-    fontWeight: 'bold'
-  },
-  infoPanel: {
-    fontSize: 12,
-    color: '#f9634f'
-  },
-  textInput: {
-    alignSelf: 'stretch',
-    padding: 16,
-    marginBottom: 20,
-    backgroundColor: '#fff',
-    color: '#000000'
-  },
-  textInputWrong: {
-    alignSelf: 'stretch',
-    padding: 16,
-    marginBottom: 20,
-    backgroundColor: '#fff',
-    color: '#ed4242'
-  },
-  logInButton: {
-    width: '80%',
-    alignItems: 'center',
-    borderRadius: 10,
-    padding: 20,
-    backgroundColor: '#01c853',
-
-  },
-  logInButtonText: {
-    color: '#fff',
-    fontSize: 16,
-  }
-})

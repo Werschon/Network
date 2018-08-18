@@ -1,13 +1,17 @@
 import React from 'react';
 import { createStackNavigator } from 'react-navigation';
-import InstantViewPage from './InstantView';
+import Login from './Login';
+import Register from './Register';
 
 const Navigator = createStackNavigator({
-  InstantView: {
-    screen: InstantViewPage
+  Login: {
+    screen: Login
+  },
+  Register: {
+    screen: Register
   }
 },{
-  initialRouteName: 'InstantView'
+  initialRouteName: 'Login'
 });
 
 export default Navigator;
