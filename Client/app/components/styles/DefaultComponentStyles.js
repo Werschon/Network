@@ -9,6 +9,7 @@ export default class DefaultComponentStyles {
     }
     return {
       alignSelf: 'stretch',
+      flexDirection: 'row',
       padding: 16,
       marginBottom: 20,
       backgroundColor: '#fff',

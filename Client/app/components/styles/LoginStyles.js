@@ -1,6 +1,16 @@
 import React from 'react';
 
 export default class LoginStyles {
+
+  static LOGO_MAX_HEIGHT = 50;
+  static LOGO_MIN_HEIGHT = 50;
+  //You have to use one of those keywords if you want to call LoginStyles.logo(keyword)
+  //Example: LoginStyles.logo('MAX');
+  static LOGO_MAX_HEIGHT_KEYWORD = 'MAX';
+  static LOGO_MIN_HEIGHT_KEYWORD = 'MIN';
+
+
+
   static wrapper = function() {
     return {
       flex: 1
@@ -17,12 +27,27 @@ export default class LoginStyles {
       paddingRight: 40
     }
   }
-  static header = function() {
+
+  static keyboardAvoidingView = function() {
     return {
-      fontSize: 24,
-      marginBottom: 60,
-      color: '#01c853',
-      fontWeight: 'bold',
+      justifyContent: 'center',
+      alignItems: 'center'
+    }
+  }
+
+  static logo = function(state) {
+    //state = 'MAX' => logo maximum size / state = 'MIN' => logo minimum size
+    if(state === this.LOGO_MAX_HEIGHT_KEYWORD)
+    {
+      return {
+        height: this.LOGO_MAX_HEIGHT
+      }
+    }
+    else if(state === this.LOGO_MIN_HEIGHT_KEYWORD)
+    {
+      return {
+        height: this.LOGO_MIN_HEIGHT
+      }
     }
   }
 

@@ -1,3 +1,5 @@
+
+
 import React from 'react';
 import {
   StyleSheet,
@@ -6,7 +8,10 @@ import {
   TextInput,
   KeyboardAvoidingView,
   TouchableOpacity,
-  NetInfo
+  NetInfo,
+  Image,
+  Animated,
+  Keyboard
 } from 'react-native';
 import Meteor from 'react-native-meteor';
 import SecurityUtility from '../util/SecurityUtility';
@@ -16,8 +21,12 @@ import LoginErrorMessages from '../text/errorMessages/LoginErrorMessages';
 import connect from 'react-watcher';
 import Timer from '../util/Timer';
 
+/*
+  The height of the logo is managed in LoginStyles.logo
+*/
 
 export default class Login extends React.Component {
+
   constructor(props) {
     super(props);
     this.state = {
@@ -26,11 +35,19 @@ export default class Login extends React.Component {
       connected: false,
       infoPanelText:'',
       textInputWrong: false,
-      connectionUpdateTimer: ''
+      connectionUpdateTimer: '',
+      logo: require('../../resource/test_logo.png'),
     }
+
+    this.LogoHeight = new Animated.Value(LoginStyles.logo('MAX').height);
   }
 
-  componentDidMount() {
+  componentWillMount() {
+    //KeyboardListener to manage visible objects when keyboard shows up
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this.keyboardDidShow);
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this.keyboardDidHide);
+
+    //Starting timer which checks server- and internet-connection every second
     let this_ = this;
     var timer = new Timer(this_.updateConnectionStatus, 1000);
     this.setState({connectionUpdateTimer: timer}, () =>
@@ -38,55 +55,83 @@ export default class Login extends React.Component {
   }
 
   componentWillUnmount() {
-    if(this.state.connectionUpdateTimer !== 'undefined') {
-      this.state.connectionUpdateTimer.stop();
-    }
+    this.keyboardDidShowListener.remove();
+    this.keyboardDidHideListener.remove();
+
+    this.state.connectionUpdateTimer.stop();
   }
 
   render() {
     return (
-      <KeyboardAvoidingView behavior='padding' style={LoginStyles.wrapper()}>
-        <View style={LoginStyles.container()}>
 
-          <Text style={LoginStyles.header()}>- LOGO -</Text>
+      <View style={LoginStyles.container()}>
 
-          <Text style={LoginStyles.infoPanel()}>{this.state.infoPanelText}</Text>
+      <KeyboardAvoidingView behavior='padding' enabled>
 
+        <Animated.Image source={this.state.logo} style={{height: this.LogoHeight}} />
 
-          <TextInput  style={DefaultComponentStyles.textInput(this.state.textInputWrong)}
-                      placeholder='Username'
-                      onChangeText={(username) => { this.setState({username: username});
-                                                    //if(this.state.textInputStyle == styles.textInputWrong){
-                                                    //  this.setState({textInputStyle: styles.textInput});
-                                                    //}
-                                                  }
-                                    }
-                      value={this.state.username}
-                      underlineColorAbdroid='transparent'/>
+        <Text style={LoginStyles.infoPanel()}>{this.state.infoPanelText}</Text>
 
-          <TextInput  style={DefaultComponentStyles.textInput(this.state.textInputWrong)}
-                      placeholder='Password'
-                      onChangeText={(password) => { this.setState({password});
-                                                    //if(this.state.textInputStyle == styles.textInputWrong){
-                                                  //    this.setState({textInputStyle: styles.textInput});
-                                                  //  }
-                                                  }
-                                    }
-                      value={this.state.password}
-                      secureTextEntry={true}
-                      underlineColorAbdroid='transparent'/>
+        <TextInput  style={DefaultComponentStyles.textInput(this.state.textInputWrong)}
+                    placeholder='Username'
+                    onChangeText={(username) => { this.setState({username: username});
+                                                  //if(this.state.textInputStyle == styles.textInputWrong){
+                                                  //  this.setState({textInputStyle: styles.textInput});
+                                                  //}
+                                                }
+                                  }
+                    value={this.state.username}
+                    underlineColorAbdroid='transparent'/>
 
-          <TouchableOpacity style={LoginStyles.logInButton()} onPress={this.login}>
-            <Text style={LoginStyles.logInButtonText()}>Log In</Text>
-          </TouchableOpacity>
+        <TextInput  style={DefaultComponentStyles.textInput(this.state.textInputWrong)}
+                    placeholder='Password'
+                    onChangeText={(password) => { this.setState({password});
+                                                  //if(this.state.textInputStyle == styles.textInputWrong){
+                                                //    this.setState({textInputStyle: styles.textInput});
+                                                //  }
+                                                }
+                                  }
+                    value={this.state.password}
+                    secureTextEntry={true}
+                    underlineColorAbdroid='transparent'/>
 
-          <TouchableOpacity style={LoginStyles.registerButton()} onPress={this.register}>
-            <Text style={LoginStyles.registerButtonText()}>Register</Text>
-          </TouchableOpacity>
+      </KeyboardAvoidingView>
 
-        </View>
+      <View>
 
-      </KeyboardAvoidingView>);
+        <TouchableOpacity style={LoginStyles.logInButton()} onPress={this.login}>
+          <Text style={LoginStyles.logInButtonText()}>Log In</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={LoginStyles.registerButton()} onPress={this.register}>
+          <Text style={LoginStyles.registerButtonText()}>Register</Text>
+        </TouchableOpacity>
+
+      </View>
+
+      </View>);
+  }
+
+  keyboardDidShow = (event) => {
+    var _duration = event.duration;
+    var _toValue = LoginStyles.logo('MIN').height;
+
+    Animated.timing(this.LogoHeight, {
+      duration: _duration,
+      toValue: _toValue,
+    }).start();
+  }
+
+  keyboardDidHide = (event) => {
+
+    //console.log(event);
+    /*var _duration = event.duration;
+    var _toValue = LoginStyles.logo('MAX').height;
+
+    Animated.timing(this.LogoHeight, {
+      duration: _duration,
+      toValue: _toValue,
+    }).start();*/
   }
 
   login = () => {
@@ -143,7 +188,5 @@ export default class Login extends React.Component {
       }
 
     });
-    //console.log(Meteor.status().status);
-
   }
 }
