@@ -68,7 +68,9 @@ export default class Login extends React.Component {
 
       <KeyboardAvoidingView behavior='padding' enabled>
 
-        <Animated.Image source={this.state.logo} style={{height: this.LogoHeight}} />
+        <Animated.Image source={this.state.logo} style={{transform: {scaleY: this.animatedValue.interpolate({
+          
+        })}}} />
 
         <Text style={LoginStyles.infoPanel()}>{this.state.infoPanelText}</Text>
 
