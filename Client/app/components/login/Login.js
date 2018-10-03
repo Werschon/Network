@@ -68,7 +68,7 @@ export default class Login extends React.Component {
 
       <KeyboardAvoidingView behavior='padding' enabled>
 
-        
+
 
         <Text style={LoginStyles.infoPanel()}>{this.state.infoPanelText}</Text>
 
@@ -135,7 +135,7 @@ export default class Login extends React.Component {
   }
 
   login = () => {
-    Promise.all([SecurityUtility.hash256(this.state.username), SecurityUtility.hash256(this.state.password)])
+    Promise.all([SecurityUtility.hash256(this.state.username), SecurityUtility.hash256(this.state.passWord)])//PETER WAR HIT_VERT_OFFSET_PX
       .then(allData => {
         console.log(allData);
         Meteor.call('checkUser', allData[0], allData[1] ,(err, data) => {
