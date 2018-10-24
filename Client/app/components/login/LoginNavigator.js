@@ -9,7 +9,8 @@ import KeyboardTest from './KeyboardIssueTest';
 //TODO To test KeyboardIssue.js change 'screen: Login' to 'screen: KeyboardTest'
 const Navigator = createStackNavigator({
   Login: {
-    screen: Login
+    screen: Login,
+    navigationOptions: { header: null }
   },
   Register: {
     screen: Register

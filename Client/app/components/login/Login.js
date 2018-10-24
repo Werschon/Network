@@ -11,7 +11,8 @@ import {
   NetInfo,
   Image,
   Animated,
-  Keyboard
+  Keyboard,
+  Platform
 } from 'react-native';
 import Meteor from 'react-native-meteor';
 import SecurityUtility from '../util/SecurityUtility';
@@ -37,16 +38,14 @@ export default class Login extends React.Component {
       textInputWrong: false,
       connectionUpdateTimer: '',
       logo: require('../../resource/test_logo.png'),
+      facebookSymbol: require('../../resource/facebook_symbol.png'),
+      googleSymbol: require('../../resource/google_plus_symbol.png'),
+      foodNetworkSymbol: require('../../resource/food_network_symbol.png'),
+      settingsSymbol: require('../../resource/settings_symbol.png')
     }
-
-    this.LogoHeight = new Animated.Value(LoginStyles.logo('MAX').height);
   }
 
   componentWillMount() {
-    //KeyboardListener to manage visible objects when keyboard shows up
-    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this.keyboardDidShow);
-    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this.keyboardDidHide);
-
     //Starting timer which checks server- and internet-connection every second
     let this_ = this;
     var timer = new Timer(this_.updateConnectionStatus, 1000);
@@ -55,83 +54,81 @@ export default class Login extends React.Component {
   }
 
   componentWillUnmount() {
-    this.keyboardDidShowListener.remove();
-    this.keyboardDidHideListener.remove();
-
     this.state.connectionUpdateTimer.stop();
+    //<Image source={this.state.logo} style={LoginStyles.logo()} resizeMode='contain'/>
   }
 
   render() {
     return (
-
       <View style={LoginStyles.container()}>
 
-      <KeyboardAvoidingView behavior='padding' enabled>
-
-
+        <View style={LoginStyles.logoContainer()}>
+          <Image source={this.state.logo} style={LoginStyles.logo()} resizeMode='contain'/>
+        </View>
 
         <Text style={LoginStyles.infoPanel()}>{this.state.infoPanelText}</Text>
 
-        <TextInput  style={DefaultComponentStyles.textInput(this.state.textInputWrong)}
-                    placeholder='Username'
-                    onChangeText={(username) => { this.setState({username: username});
-                                                  //if(this.state.textInputStyle == styles.textInputWrong){
-                                                  //  this.setState({textInputStyle: styles.textInput});
-                                                  //}
-                                                }
-                                  }
-                    value={this.state.username}
-                    underlineColorAbdroid='transparent'/>
+        <KeyboardAvoidingView style={LoginStyles.keyboardAvoidingView()} behavior="padding">
 
-        <TextInput  style={DefaultComponentStyles.textInput(this.state.textInputWrong)}
-                    placeholder='Password'
-                    onChangeText={(password) => { this.setState({password});
-                                                  //if(this.state.textInputStyle == styles.textInputWrong){
-                                                //    this.setState({textInputStyle: styles.textInput});
-                                                //  }
-                                                }
-                                  }
-                    value={this.state.password}
-                    secureTextEntry={true}
-                    underlineColorAbdroid='transparent'/>
+          <TextInput  style={LoginStyles.textInput(this.state.textInputWrong)}
+                      placeholder='Username'
+                      onChangeText={(username) => { this.setState({username: username});
+                                                    //if(this.state.textInputStyle == styles.textInputWrong){
+                                                    //  this.setState({textInputStyle: styles.textInput});
+                                                    //}
+                                                  }
+                                    }
+                      value={this.state.username}
+                      underlineColorAbdroid='transparent'/>
 
-      </KeyboardAvoidingView>
+          <TextInput  style={LoginStyles.textInput(this.state.textInputWrong)}
+                      placeholder='Password'
+                      onChangeText={(password) => { this.setState({password});
+                                                    //if(this.state.textInputStyle == styles.textInputWrong){
+                                                  //    this.setState({textInputStyle: styles.textInput});
+                                                  //  }
+                                                  }
+                                    }
+                      value={this.state.password}
+                      secureTextEntry={true}
+                      underlineColorAbdroid='transparent'/>
 
-      <View>
+          <View style={LoginStyles.logInButtonContainer()}>
 
-        <TouchableOpacity style={LoginStyles.logInButton()} onPress={this.login}>
-          <Text style={LoginStyles.logInButtonText()}>Log In</Text>
-        </TouchableOpacity>
+            <TouchableOpacity style={LoginStyles.logInButton()} onPress={this.login}>
+              <Text adjustsFontSizeToFit numberOfLines={1} style={LoginStyles.logInButtonText()}>Log In</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity style={LoginStyles.registerButton()} onPress={this.register}>
-          <Text style={LoginStyles.registerButtonText()}>Register</Text>
-        </TouchableOpacity>
+          </View>
+
+          <View style={LoginStyles.otherServicesSeparationLineContainer()}>
+            <View style={LoginStyles.otherServicesSeparationLine()}/>
+            <Text style={LoginStyles.otherServicesSeparationText()}>or</Text>
+            <View style={LoginStyles.otherServicesSeparationLine()}/>
+          </View>
+
+        </KeyboardAvoidingView>
+
+        <View style={LoginStyles.otherServicesSymbolsView()}>
+          <TouchableOpacity style={LoginStyles.otherServicesSymbolsTO()}>
+            <Image source={this.state.googleSymbol} style={LoginStyles.otherServicesSymbols()} resizeMode='contain'/>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={LoginStyles.otherServicesSymbolsTO()}>
+            <Image source={this.state.facebookSymbol} style={LoginStyles.otherServicesSymbols()} resizeMode='contain'/>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={this.register()} style={LoginStyles.otherServicesSymbolsTO()}>
+            <Image source={this.state.foodNetworkSymbol} style={LoginStyles.otherServicesSymbols()} resizeMode='contain'/>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={LoginStyles.otherServicesSymbolsTO()}>
+            <Image source={this.state.settingsSymbol} style={LoginStyles.otherServicesSymbols()} resizeMode='contain'/>
+          </TouchableOpacity>
+        </View>
 
       </View>
-
-      </View>);
-  }
-
-  keyboardDidShow = (event) => {
-    var _duration = event.duration;
-    var _toValue = LoginStyles.logo('MIN').height;
-
-    Animated.timing(this.LogoHeight, {
-      duration: _duration,
-      toValue: _toValue,
-    }).start();
-  }
-
-  keyboardDidHide = (event) => {
-
-    //console.log(event);
-    /*var _duration = event.duration;
-    var _toValue = LoginStyles.logo('MAX').height;
-
-    Animated.timing(this.LogoHeight, {
-      duration: _duration,
-      toValue: _toValue,
-    }).start();*/
+    );
   }
 
   login = () => {
@@ -155,7 +152,9 @@ export default class Login extends React.Component {
   }
 
   register = () => {
-    this.props.navigation.navigate('Register');
+    console.log("Register reached");
+    console.log("****************");
+    //this.props.navigation.navigate('Register');
   }
 
   updateConnectionStatus = () => {
