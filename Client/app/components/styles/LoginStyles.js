@@ -2,15 +2,6 @@ import React from 'react';
 
 export default class LoginStyles {
 
-  static LOGO_MAX_HEIGHT = 50;
-  static LOGO_MIN_HEIGHT = 50;
-  //You have to use one of those keywords if you want to call LoginStyles.logo(keyword)
-  //Example: LoginStyles.logo('MAX');
-  static LOGO_MAX_HEIGHT_KEYWORD = 'MAX';
-  static LOGO_MIN_HEIGHT_KEYWORD = 'MIN';
-
-
-
   static wrapper = function() {
     return {
       flex: 1
@@ -20,34 +11,35 @@ export default class LoginStyles {
   static container = function() {
     return {
       flex: 1,
+      flexDirection: "column",
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: '#ededed',
-      paddingLeft: 40,
-      paddingRight: 40
+      paddingHorizontal: 40
+    }
+  }
+
+  static logoContainer = function() {
+    return {
+      flexDirection: 'row',
+      height: '20%',
+      paddingBottom: 20
+    }
+  }
+
+  static logo = function() {
+    return {
+      flex: 1,
+      alignSelf: 'stretch',
+      width: undefined,
+      height: undefined
     }
   }
 
   static keyboardAvoidingView = function() {
     return {
-      justifyContent: 'center',
-      alignItems: 'center'
-    }
-  }
-
-  static logo = function(state) {
-    //state = 'MAX' => logo maximum size / state = 'MIN' => logo minimum size
-    if(state === this.LOGO_MAX_HEIGHT_KEYWORD)
-    {
-      return {
-        height: this.LOGO_MAX_HEIGHT
-      }
-    }
-    else if(state === this.LOGO_MIN_HEIGHT_KEYWORD)
-    {
-      return {
-        height: this.LOGO_MIN_HEIGHT
-      }
+      alignItems: 'center',
+      alignSelf: 'stretch'
     }
   }
 
@@ -56,18 +48,46 @@ export default class LoginStyles {
       fontSize: 12,
       fontWeight: 'bold',
       color: '#f9634f',
-      paddingBottom: 20,
-      alignSelf: 'stretch'
+      paddingBottom: 20
+    }
+  }
+
+  static textInput = function(textInputWrong){
+    textColor = '#000000';
+    if(textInputWrong){
+      textColor = '#ed4242';
+    }
+    return {
+      alignSelf: 'stretch',
+      color: textColor,
+      borderColor: 'gray'
+    }
+  }
+
+  static logInButtonContainer = function() {
+    return {
+      flexDirection: 'row',
     }
   }
 
   static logInButton = function() {
     return {
       width: '80%',
+      height: '10%',
       alignItems: 'center',
-      borderRadius: 10,
-      padding: 20,
+      justifyContent: 'center',
+      borderRadius: 20,
+      paddingVertical: 20,
+      marginVertical: 10,
       backgroundColor: '#01c853'
+    }
+  }
+
+  static logInButtonText = function () {
+    return {
+      color: '#fff',
+      textAlignVertical: "center",
+      textAlign: "center",
     }
   }
 
@@ -75,16 +95,9 @@ export default class LoginStyles {
     return {
       width: '80%',
       alignItems: 'center',
-      borderRadius: 10,
+      borderRadius: 20,
       padding: 20,
       backgroundColor: '#01c853',
-    }
-  }
-
-  static logInButtonText = function () {
-    return {
-      color: '#fff',
-      fontSize: 16,
     }
   }
 
@@ -92,6 +105,63 @@ export default class LoginStyles {
     return {
       color: '#fff',
       fontSize: 16,
+    }
+  }
+
+  static otherServicesSeparationLineContainer = function() {
+    return {
+      width: undefined,
+      alignSelf: 'stretch',
+      alignItems: 'center',
+      flexDirection: 'row',
+      justifyContent: 'space-between'
+    }
+  }
+
+  static otherServicesSeparationLine = function() {
+    return {
+      borderBottomColor: 'gray',
+      borderBottomWidth: 1,
+      width: '45%',
+      alignSelf: 'center'
+    }
+  }
+
+  static otherServicesSeparationText = function() {
+    return {
+      color: 'gray',
+      textAlignVertical: "center",
+      textAlign: "center",
+      justifyContent: 'center'
+    }
+  }
+
+  static otherServicesSymbolsView = function () {
+    return {
+      width: undefined,
+      alignSelf: 'stretch',
+      height: '5%',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    }
+  }
+
+  static otherServicesSymbolsTO = function() {
+    return {
+      width: undefined,
+      height: undefined,
+      alignSelf: 'stretch',
+      flex: 1,
+      flexDirection: 'row'
+    }
+  }
+
+  static otherServicesSymbols = function () {
+    return {
+      flex: 1,
+      alignSelf: 'stretch',
+      width: undefined,
+      height: undefined
     }
   }
 }
