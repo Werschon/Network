@@ -118,7 +118,7 @@ export default class Login extends React.Component {
             <Image source={this.state.facebookSymbol} style={LoginStyles.otherServicesSymbols()} resizeMode='contain'/>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={this.register()} style={LoginStyles.otherServicesSymbolsTO()}>
+          <TouchableOpacity onPress={this.register} style={LoginStyles.otherServicesSymbolsTO()}>
             <Image source={this.state.foodNetworkSymbol} style={LoginStyles.otherServicesSymbols()} resizeMode='contain'/>
           </TouchableOpacity>
 
@@ -132,7 +132,7 @@ export default class Login extends React.Component {
   }
 
   login = () => {
-    Promise.all([SecurityUtility.hash256(this.state.username), SecurityUtility.hash256(this.state.passWord)])//PETER WAR HIT_VERT_OFFSET_PX
+    Promise.all([SecurityUtility.hash256(this.state.username), SecurityUtility.hash256(this.state.password)])//PETER WAR HIT_VERT_OFFSET_PX
       .then(allData => {
         console.log(allData);
         Meteor.call('checkUser', allData[0], allData[1] ,(err, data) => {

@@ -6,7 +6,7 @@ import MemberAreaNavigator from './app/components/memberArea/MemberAreaNavigator
 import Meteor from 'react-native-meteor';
 import SystemParameters from './app/components/system/SystemParameters';
 
-Meteor.connect('ws://localhost:3000/websocket', (err, res) => {
+Meteor.connect('ws://192.168.0.25:3000/websocket', (err, res) => {
   if(err)
   {
     console.log("Could not connect to server reached");
